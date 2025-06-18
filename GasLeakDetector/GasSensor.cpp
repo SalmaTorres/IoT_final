@@ -49,7 +49,7 @@ void GasSensor::calculateGasConcentration() {
   if (ppm < safeThreshold) {
     gasLevel = "seguro";
   } else if (ppm < warningThreshold) {
-    gasLevel = "precaucion";
+    gasLevel = "precaución";
   } else {
     gasLevel = "emergencia";
   }
