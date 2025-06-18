@@ -35,7 +35,7 @@ struct Timings {
 
 struct SystemState {
     uint16_t currentPPM = 0;
-    String currentGasLevel = "inicializando";
+    String currentGasLevel = "seguro";
     String lastGasLevel = "";
     bool stateChanged = false;
     bool remoteCommandReceived = false;
@@ -291,21 +291,24 @@ void loop() {
         handleMQTTReconnection();
     }
     
-    if (systemState.remoteCommandReceived) {
-        systemState.stateChanged = false;
-    }
-    
+    // Leer el sensor y actualizar los valores actuales
     gasSensor.calculateGasConcentration();
     systemState.currentPPM = gasSensor.getPPM();
     systemState.currentGasLevel = gasSensor.getGasLevel();
     
     Serial.println("PPM: " + String(systemState.currentPPM) + " - Estado: " + systemState.currentGasLevel);
     
+    // Detectar cambios de estado
     if (systemState.currentGasLevel != systemState.lastGasLevel) {
         Serial.println("Cambio detectado: " + systemState.lastGasLevel + " -> " + systemState.currentGasLevel);
         systemState.lastGasLevel = systemState.currentGasLevel;
         systemState.stateChanged = true;
         reportStates();
+    }
+    
+    // MOVER ESTO AL FINAL - Reset del flag después de procesar cambios
+    if (systemState.remoteCommandReceived) {
+        systemState.remoteCommandReceived = false; // Solo resetear este flag
     }
     
     delay(Timings::LOOP_DELAY);
